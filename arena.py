@@ -1,6 +1,7 @@
 import pygame
 import numpy as np
 import math
+from ball import Ball
 
 class Arena:
     def __init__(self, center, radius, arc_degree, spinning_speed):
@@ -9,6 +10,7 @@ class Arena:
         self.spinning_speed = spinning_speed
 
         arc_rad = math.radians(arc_degree)
+
         self.start_angle = -arc_rad / 2
         self.end_angle = arc_rad / 2
 
@@ -20,39 +22,31 @@ class Arena:
         d = ball.pos - self.center
         dist = np.linalg.norm(d)
 
-        if dist + ball.radius <= self.radius:
+        if dist < self.radius - ball.radius:
             return
 
-        # Ball is touching boundary
-        if ball.is_in and ball.__class__.is_in_arc(
-            ball.pos, self.center, self.start_angle, self.end_angle
-        ):
-            ball.is_in = False
-            return
+        if ball.is_in and Ball.is_in_arc(ball.pos, self.center,
+                                self.start_angle, self.end_angle):
+            if np.dot(ball.v, d) > 0:   # moving outward
+                ball.is_in = False
+                return
 
         if ball.is_in:
             d_unit = d / dist
             ball.pos = self.center + (self.radius - ball.radius) * d_unit
 
-            t = np.array([-d[1], d[0]])
-            proj = (np.dot(ball.v, t) / np.dot(t, t)) * t
-            ball.v = 2 * proj - ball.v
-            ball.v += t * self.spinning_speed
+            n = d / dist                # unit normal
+            ball.pos = self.center + n * (self.radius - ball.radius)
+
+            vn = np.dot(ball.v, n)
+            ball.v = ball.v - 2 * vn * n
+            t = np.array([-n[1], n[0]])     # unit tangent
+            ball.v += t * self.spinning_speed * self.radius
 
     def draw(self, surface):
         pygame.draw.circle(surface, (255, 165, 0),
-                           self.center.astype(int), self.radius, 3)
-
-        pygame.draw.arc(
-            surface,
-            (255, 255, 255),
-            (
-                self.center[0] - self.radius,
-                self.center[1] - self.radius,
-                self.radius * 2,
-                self.radius * 2
-            ),
-            self.start_angle,
-            self.end_angle,
-            4
-        )
+                           self.center.astype(int), self.radius, 3) 
+        # Circle arc
+        p1 = self.center + (self.radius+1000) * np.array([math.cos(self.start_angle), math.sin(self.start_angle)])
+        p2 = self.center + (self.radius+1000) * np.array([math.cos(self.end_angle), math.sin(self.end_angle)])
+        pygame.draw.polygon(surface, (0, 0, 0), [self.center,p1,p2], 0)

@@ -19,6 +19,18 @@ class Ball:
 
     @staticmethod
     def is_in_arc(point, center, start_angle, end_angle):
+        dx = point[0] - center[0]
+        dy = point[1] - center[1]
+        ball_angle = math.atan2(dy,dx)
+        end_angle = end_angle % (2 * math.pi)
+        start_angle = start_angle % (2 * math.pi)
+        if start_angle >= end_angle:
+            end_angle += 2 * math.pi
+        if start_angle <= ball_angle <= end_angle or (start_angle <= ball_angle + 2 * math.pi <= end_angle):
+            return True
+
+        
+        '''
         v = point - center
         angle = math.atan2(v[1], v[0])
 
@@ -30,3 +42,4 @@ class Ball:
         if start < end:
             return start <= angle <= end
         return angle >= start or angle <= end
+        '''

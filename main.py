@@ -1,6 +1,8 @@
 import pygame
-from world import World
-from arena import Arena
+import random
+from core.world import World
+from core.arena import Arena
+from core.ball import Ball
 
 pygame.init()
 
@@ -17,22 +19,25 @@ arena = Arena(
     spinning_speed=0.01
 )
 
-world = World(arena, WIDTH, HEIGHT, gravity=0.2)
-world.spawn_ball([WIDTH / 2, HEIGHT / 2 - 120], [0, 0])
+world = World(arena, WIDTH, HEIGHT, gravity=10)
+world.spawn(Ball(
+    pos=[world.width / 2, world.height / 2 - 120],
+    vel=[random.uniform(-4, 4), random.uniform(-1, 1)]))
 
 running = True
 while running:
+    dt = clock.tick(60) / 100.0
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
-    world.update()
+    world.update(dt)
 
     window.fill(BLACK)
     world.draw(window)
 
     pygame.display.flip()
-    clock.tick(60)
 
 pygame.quit()
 

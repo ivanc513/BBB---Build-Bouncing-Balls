@@ -1,24 +1,32 @@
-from core.ball import Ball
+from core.objects.ball import Ball
 
 class World:
-    def __init__(self, arena, width, height, gravity):
+    def __init__(self, arena, width, height, constraints):
         self.arena = arena
         self.width = width
         self.height = height
-        self.gravity = gravity
 
         self.objects = [arena]
+        self.constraints = constraints
         self.running = True
 
     def spawn(self, obj):
         self.objects.append(obj)
 
     def update(self, dt):
+
         alive_objects = []
 
+        # 1. Apply global physics constraints
+        for obj in self.objects:
+            for constraint in self.constraints:
+                constraint.apply(obj, dt, self)
+
+        # 2. Update objects
         for obj in self.objects:
             obj.update(dt, self)
-            
+
+        # 3. Handle collisions + cleanup
         for obj in self.objects:
             for other in self.objects:
                 if obj is not other:
@@ -30,6 +38,7 @@ class World:
                 alive_objects.append(obj)
 
         self.objects = alive_objects
+
 
     def is_out_of_bounds(self, obj):
         x, y = obj.pos

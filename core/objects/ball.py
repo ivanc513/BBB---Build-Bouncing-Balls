@@ -19,7 +19,6 @@ class Ball(SimObject):
         return True
 
     def update(self, dt, world):
-        self.v[1] += world.gravity * dt
         self.pos += self.v * dt
 
     def draw(self, surface):

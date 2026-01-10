@@ -1,7 +1,7 @@
 import pygame
 import numpy as np
 import math
-from core.ball import Ball
+from core.objects.ball import Ball
 from .base_object import SimObject
 
 class Arena(SimObject):
@@ -24,7 +24,7 @@ class Arena(SimObject):
 
     def on_collision(self, other, world):
         # Only handle dynamic objects like balls
-        if not getattr(other, "is_dynamic"):
+        if not getattr(other, "is_dynamic", False):
             return
 
         d = other.pos - self.pos

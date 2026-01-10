@@ -1,8 +1,9 @@
 import pygame
 import random
-from core.world import World
-from core.arena import Arena
-from core.ball import Ball
+from core.world.world import World
+from core.objects.ring import Arena
+from core.objects.ball import Ball
+from core.constraints.gravity import Gravity
 
 pygame.init()
 
@@ -19,7 +20,7 @@ arena = Arena(
     spinning_speed=0.01
 )
 
-world = World(arena, WIDTH, HEIGHT, gravity=10)
+world = World(arena, WIDTH, HEIGHT, constraints=[Gravity(10)])
 world.spawn(Ball(
     pos=[world.width / 2, world.height / 2 - 120],
     vel=[random.uniform(-4, 4), random.uniform(-1, 1)]))

@@ -4,6 +4,7 @@ from core.world.world import World
 from core.objects.ring import Arena
 from core.objects.ball import Ball
 from core.constraints.gravity import Gravity
+from core.conditions.ball_count import BallCount
 
 pygame.init()
 
@@ -20,18 +21,17 @@ arena = Arena(
     spinning_speed=0.01
 )
 
-world = World(arena, WIDTH, HEIGHT, constraints=[Gravity(10)])
+world = World(arena, WIDTH, HEIGHT, constraints=[Gravity(10)], end_condition=BallCount(10))
 world.spawn(Ball(
     pos=[world.width / 2, world.height / 2 - 120],
     vel=[random.uniform(-4, 4), random.uniform(-1, 1)]))
 
-running = True
-while running:
+while world.running:
     dt = clock.tick(60) / 100.0
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            running = False
+            world.running = False
 
     world.update(dt)
 

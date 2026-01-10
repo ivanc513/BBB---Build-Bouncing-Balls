@@ -32,16 +32,6 @@ class Ball(SimObject):
     def on_collision(self, other, world):
         pass
 
-    def on_destroy(self, world):
-        for _ in range(2):
-            world.spawn(
-            Ball(
-                pos=[world.width / 2, world.height / 2 - 120],
-                vel=[random.uniform(-4, 4), random.uniform(-1, 1)],
-                radius=self.radius
-            )
-        )
-
     @staticmethod
     def is_in_arc(point, center, start_angle, end_angle):
         dx = point[0] - center[0]

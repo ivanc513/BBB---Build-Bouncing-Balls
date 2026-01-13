@@ -39,7 +39,6 @@ class Arena(SimObject):
                 other.is_in = False
                 return
 
-        # Will be modified to call object on_collision in the future
         if getattr(other, "is_in"):
             n = d / dist
             other.pos = self.pos + (self.radius - other.radius) * n
@@ -51,6 +50,9 @@ class Arena(SimObject):
             other.v = other.v - 2 * vn * n
             t = np.array([-n[1], n[0]])     # unit tangent
             other.v += t * self.spinning_speed * self.radius
+
+            if (getattr(other, "sfx", None) != None):
+                other.sfx.play() # User may add custom sfx
 
 
     def draw(self, surface):

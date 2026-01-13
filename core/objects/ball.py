@@ -7,11 +7,13 @@ from .base_object import SimObject
 RED = (255, 0, 0)
 
 class Ball(SimObject):
-    def __init__(self, pos, vel, radius=5, color=RED):
+    def __init__(self, pos, vel, radius=5, color=RED, sfx=None):
         super().__init__(pos)
         self.v = np.array(vel, dtype=np.float64)
         self.radius = radius
         self.color = color
+        self.sfx = sfx
+
         self.is_in = True
 
     @property

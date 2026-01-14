@@ -24,7 +24,10 @@ class World:
                 Ball(
                     pos=[self.width / 2, self.height / 2 - 120],
                     vel=[random.uniform(-4, 4), random.uniform(-1, 1)],
-                    radius=obj.radius
+                    radius=obj.radius,
+                    color=obj.color,
+                    sfx=obj.sfx,
+                    vfx=obj.vfx
                 )
             )
 

@@ -92,7 +92,6 @@ def simulation_window(SCREEN):
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
 
-    # Setup simulation world
     arena = Ring(
         center=(WIDTH / 2, HEIGHT / 2),
         radius=150,
@@ -108,10 +107,13 @@ def simulation_window(SCREEN):
         end_condition=BallCount(10)
     )
 
-    # Spawn initial ball
     world.spawn(Ball(
         pos=[world.width / 2, world.height / 2 - 120],
-        vel=[random.uniform(-4, 4), random.uniform(-1, 1)]
+        vel=[random.uniform(-4, 4), random.uniform(-1, 1)],
+        radius=5,
+        color=(1.0,0.0,0.0),
+        sfx=None,
+        vfx=None
     ))
 
     running = True
@@ -131,8 +133,7 @@ def simulation_window(SCREEN):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         glLoadIdentity()
 
-        # Draw world objects
-        world.draw()  # You'll need a method that draws balls/arena using OpenGL
+        world.draw()
 
         pygame.display.flip()
 

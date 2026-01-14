@@ -17,7 +17,7 @@ class Ring(SimObject):
 
     @property
     def is_dynamic(self):
-        return False  # the arena itself doesn't move position
+        return False 
 
     def update(self, dt, world):
         self.start_angle += self.spinning_speed * dt * 5
@@ -71,7 +71,7 @@ class Ring(SimObject):
         # Draw arc (black sector)
         glColor3f(0.0, 0.0, 0.0)
         glBegin(GL_TRIANGLE_FAN)
-        glVertex2f(*self.pos)  # center of arena
+        glVertex2f(*self.pos)  
         num_arc_segments = 30
         start = self.start_angle
         end = self.end_angle

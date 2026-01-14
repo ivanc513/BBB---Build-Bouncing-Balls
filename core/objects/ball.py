@@ -32,7 +32,7 @@ class Ball(SimObject):
         glColor3f(*self.color)  # RGB in 0-1 range
         glBegin(GL_TRIANGLE_FAN)
         glVertex2f(*self.pos)  # center of circle
-        num_segments = 20  # more segments = smoother circle
+        num_segments = 20 
         for i in range(num_segments + 1):
             theta = 2.0 * math.pi * i / num_segments
             x = self.pos[0] + self.radius * math.cos(theta)
@@ -51,6 +51,5 @@ class Ball(SimObject):
         if start <= end:
            return start <= angle <= end
         else:
-        # Arc wraps past 0 radians
             return angle >= start or angle <= end
         

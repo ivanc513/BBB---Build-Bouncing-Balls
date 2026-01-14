@@ -1,14 +1,26 @@
 import pygame
-from tests.simulation import simulation_test
-from ui.windows.main_menu import main_menu
+from ui.windows.windows import WINDOWS
 
-pygame.init()
+def main():
+    pygame.init()
 
-info = pygame.display.Info()
-SCREEN_W = info.current_w
-SCREEN_H = info.current_h
+    info = pygame.display.Info()
+    SCREEN_W, SCREEN_H = info.current_w, info.current_h
+    SCREEN = [SCREEN_W, SCREEN_H]
 
-screen = pygame.display.set_mode((SCREEN_W, SCREEN_H), pygame.RESIZABLE)
+    # Start with the main menu
+    next_window = "MAIN_MENU"
+    running = True
 
+    while running:
+        # Every window has its own loop and must return next widnow
+        window_func = WINDOWS[next_window]
+        next_window = window_func(SCREEN)
 
-main_menu(screen)
+        if next_window == "QUIT":
+            running = False
+
+    pygame.quit()
+
+if __name__ == "__main__":
+    main()

@@ -1,3 +1,4 @@
+from OpenGL.GL import *
 from core.objects.ball import Ball
 from core.conditions.ball_count import BallCount
 import random
@@ -60,7 +61,7 @@ class World:
             y < 0 or y > self.height
         )
     
-    def draw(self, surface):
-        self.arena.draw(surface)
+    def draw(self):
+        self.arena.draw()
         for obj in self.objects:
-            obj.draw(surface)
+            obj.draw()

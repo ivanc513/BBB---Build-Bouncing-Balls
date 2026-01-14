@@ -1,17 +1,19 @@
 import numpy as np
 import pygame
+from OpenGL.GL import *
 import math
 import random
+from OpenGL import *
 from .base_object import SimObject
 
 RED = (255, 0, 0)
 
 class Ball(SimObject):
-    def __init__(self, pos, vel, radius=5, color=RED, sfx=None):
+    def __init__(self, pos, vel, radius=5, color=(1.0,0.0,0.0), sfx=None):
         super().__init__(pos)
-        self.v = np.array(vel, dtype=np.float64)
+        self.v = np.array(vel, dtype=np.float32)
         self.radius = radius
-        self.color = color
+        self.color = np.array(color, dtype=np.float32)
         self.sfx = sfx
 
         self.is_in = True
@@ -23,16 +25,20 @@ class Ball(SimObject):
     def update(self, dt, world):
         self.pos += self.v * dt
 
-    def draw(self, surface):
-        pygame.draw.circle(
-            surface, 
-            self.color, 
-            self.pos.astype(int), 
-            self.radius
-        )
-
     def on_collision(self, other, world):
         pass
+
+    def draw(self):
+        glColor3f(*self.color)  # RGB in 0-1 range
+        glBegin(GL_TRIANGLE_FAN)
+        glVertex2f(*self.pos)  # center of circle
+        num_segments = 20  # more segments = smoother circle
+        for i in range(num_segments + 1):
+            theta = 2.0 * math.pi * i / num_segments
+            x = self.pos[0] + self.radius * math.cos(theta)
+            y = self.pos[1] + self.radius * math.sin(theta)
+            glVertex2f(x, y)
+        glEnd()
 
     @staticmethod
     def is_in_arc(point, center, start_angle, end_angle):

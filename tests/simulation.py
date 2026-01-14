@@ -1,7 +1,7 @@
 import pygame
 import random
 from core.world.world import World
-from core.objects.ring import Arena
+from core.objects.ring import Ring
 from core.objects.ball import Ball
 from core.constraints.gravity import Gravity
 from core.conditions.ball_count import BallCount

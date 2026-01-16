@@ -1,8 +1,8 @@
 import pygame
+from datetime import datetime
+from copy import deepcopy
 from OpenGL.GLU import *
 from OpenGL.GL import *
-import sys
-import random
 from ui.widgets.button import Button
 from tests.simulation import simulation_test
 from core.objects.ball import Ball
@@ -10,6 +10,8 @@ from core.objects.ring import Ring
 from core.world.world import World
 from core.constraints.gravity import Gravity
 from core.conditions.ball_count import BallCount
+from library.sim_loader import load_simulation_from_json
+from library.sim_file_handler import create_new_sim_file
 
 def pygame_display(width, height):
     return pygame.display.set_mode((width, height), 
@@ -19,7 +21,7 @@ def opengl_display(width, height):
     return pygame.display.set_mode((width, height),
         pygame.OPENGL | pygame.DOUBLEBUF)
 
-def main_menu(SCREEN):
+def main_menu(SCREEN, state):
     pygame.display.set_caption("Menu")
     [width, height] = SCREEN
     screen = pygame_display(width, height)
@@ -52,69 +54,57 @@ def main_menu(SCREEN):
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+                return {"next" : "QUIT"}
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if NEW_BUTTON.checkForInput(MENU_MOUSE_POS):
-                    return "SIMULATION"
+                    template_path = "library/simulation_template/default.json"
+
+                    # Create a new file with timestamp
+                    new_sim_path = create_new_sim_file(template_path)
+
+                    # Load the world from the new file using your existing loader
+                    world = load_simulation_from_json(new_sim_path, width, height)
+
+                    return {
+                        "next": "SIMULATION",
+                        "world": world,
+                    }
                 if LIBRARY_BUTTON.checkForInput(MENU_MOUSE_POS):
-                    return "LIBRARY"
+                    return {"next" : "LIBRARY"}
                 if RECORDINGS_BUTTON.checkForInput(MENU_MOUSE_POS):
-                    return "RECORDINGS"            
+                    return {"next" : "RECORDINGS"}          
                 if QUIT_BUTTON.checkForInput(MENU_MOUSE_POS):
-                    return "QUIT"
+                    return {"next" : "QUIT"}
 
         pygame.display.update()
 
-def library(SCREEN):
+def library(SCREEN, state):
     return "MAIN_MENU"
 
-def recordings(SCREEN):
+def recordings(SCREEN, state):
     return "MAIN_MENU"
     
-def simulation_window(SCREEN):
+def simulation_window(SCREEN, state):
 
     WIDTH, HEIGHT = SCREEN
 
     # Initialize OpenGL display
-    window = pygame.display.set_mode(
-        (WIDTH, HEIGHT),
-        pygame.OPENGL | pygame.DOUBLEBUF
-    )
+    window = opengl_display(WIDTH, HEIGHT)
     pygame.display.set_caption("Simulation (OpenGL)")
     clock = pygame.time.Clock()
+    world = state.get("world", state["world"])
 
-    # OpenGL perspective setup
+    if world is None:
+        print("ERROR: Entered SIMULATION with no world loaded")
+        return {"next": "MAIN_MENU"}
+
+    # OpenGL setup
     glViewport(0, 0, WIDTH, HEIGHT)
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
-    gluOrtho2D(0, WIDTH, HEIGHT, 0)  # top-left origin for 2D rendering
+    gluOrtho2D(0, WIDTH, HEIGHT, 0)
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
-
-    arena = Ring(
-        center=(WIDTH / 2, HEIGHT / 2),
-        radius=150,
-        arc_degree=60,
-        spinning_speed=0.01
-    )
-
-    world = World(
-        arena,
-        WIDTH,
-        HEIGHT,
-        constraints=[Gravity(10)],
-        end_condition=BallCount(10)
-    )
-
-    world.spawn(Ball(
-        pos=[world.width / 2, world.height / 2 - 120],
-        vel=[random.uniform(-4, 4), random.uniform(-1, 1)],
-        radius=5,
-        color=(1.0,0.0,0.0),
-        sfx=None,
-        vfx=None
-    ))
 
     running = True
     while running and world.running:
@@ -126,10 +116,8 @@ def simulation_window(SCREEN):
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 running = False
 
-        # Update simulation logic
         world.update(dt)
 
-        # --- OpenGL Rendering ---
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         glLoadIdentity()
 
@@ -137,7 +125,7 @@ def simulation_window(SCREEN):
 
         pygame.display.flip()
 
-    return "MAIN_MENU"
+    return {"next" : "MAIN_MENU"}
 
 WINDOWS = {
     "MAIN_MENU" : main_menu,

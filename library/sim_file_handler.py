@@ -2,29 +2,62 @@ import os
 import json
 from datetime import datetime
 
-def _get_existing_metadata_names(dest_folder):
-    """
-    Scan all JSON files in the destination folder and
-    return a set of all simulation metadata names.
-    """
+LIBRARY_DIR = "library/simulations"
+
+def list_simulations():
+    simulations = []
+
+    if not os.path.exists(LIBRARY_DIR):
+        return simulations
+
+    for fname in os.listdir(LIBRARY_DIR):
+        if not fname.endswith(".json"):
+            continue
+
+        try:
+            with open(os.path.join(LIBRARY_DIR, fname), "r") as f:
+                config = json.load(f)
+
+            metadata = config.get("metadata", {})
+            name = metadata.get("name")
+            created_at = metadata.get("created_at", "Unknown")
+
+            if name:
+                simulations.append({
+                    "name": name,
+                    "filename": fname,
+                    "created_at": created_at
+                })
+
+        except Exception as e:
+            print(f"Failed to load {fname}: {e}")
+
+    return simulations
+
+
+def delete_simulation(filename):
+    path = os.path.join(LIBRARY_DIR, filename)
+    if os.path.exists(path):
+        os.remove(path)
+
+def _get_existing_metadata_names():
     names = set()
-    if not os.path.exists(dest_folder):
+    if not os.path.exists(LIBRARY_DIR):
         return names
 
-    for fname in os.listdir(dest_folder):
+    for fname in os.listdir(LIBRARY_DIR):
         if not fname.endswith(".json"):
             continue
         try:
-            with open(os.path.join(dest_folder, fname), "r") as f:
+            with open(os.path.join(LIBRARY_DIR, fname), "r") as f:
                 config = json.load(f)
             meta_name = config.get("metadata", {}).get("name")
             if meta_name:
                 names.add(meta_name)
         except Exception:
-            # Ignore broken files
             pass
-    return names
 
+    return names
 
 def _generate_unique_metadata_name(base_name, existing_names):
     '''
@@ -41,7 +74,7 @@ def _generate_unique_metadata_name(base_name, existing_names):
     return f"{base_name}({counter})"
 
 
-def create_new_sim_file(template_path, dest_folder="library/simulations", name=None):
+def create_new_sim_file(template_path, name=None):
     """
     Create a new simulation JSON file from a template, with metadata
     including a unique name and creation timestamp.
@@ -54,13 +87,13 @@ def create_new_sim_file(template_path, dest_folder="library/simulations", name=N
     Returns:
         str: Path to the newly created JSON file.
     """
-    os.makedirs(dest_folder, exist_ok=True)
+    os.makedirs(LIBRARY_DIR, exist_ok=True)
 
     with open(template_path, "r") as f:
         config = json.load(f)
 
     requested_name = name or "New Simulation"
-    existing_names = _get_existing_metadata_names(dest_folder)
+    existing_names = _get_existing_metadata_names()
     unique_name = _generate_unique_metadata_name(requested_name, existing_names)
 
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -71,7 +104,7 @@ def create_new_sim_file(template_path, dest_folder="library/simulations", name=N
 
     file_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     safe_filename = unique_name.replace(" ", "_")
-    new_file_path = os.path.join(dest_folder, f"{safe_filename}_{file_timestamp}.json")
+    new_file_path = os.path.join(LIBRARY_DIR, f"{safe_filename}_{file_timestamp}.json")
 
     with open(new_file_path, "w") as f:
         json.dump(config, f, indent=4)

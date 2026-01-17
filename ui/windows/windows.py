@@ -1,4 +1,5 @@
 import pygame
+import os
 from datetime import datetime
 from copy import deepcopy
 from OpenGL.GLU import *
@@ -11,7 +12,9 @@ from core.world.world import World
 from core.constraints.gravity import Gravity
 from core.conditions.ball_count import BallCount
 from library.sim_loader import load_simulation_from_json
-from library.sim_file_handler import create_new_sim_file
+from library.sim_file_handler import *
+
+FONT_PATH = "ui/assets/OpenSans.ttf"
 
 def pygame_display(width, height):
     return pygame.display.set_mode((width, height), 
@@ -31,19 +34,19 @@ def main_menu(SCREEN, state):
         MENU_MOUSE_POS = pygame.mouse.get_pos()
 
         NEW_BUTTON = Button(image=None, pos=(width/2, 3 * height/10), 
-            text_input="NEW SIMULATION", font = pygame.font.Font("ui/assets/OpenSans.ttf", 75), 
+            text_input="NEW SIMULATION", font = pygame.font.Font(FONT_PATH, 75), 
             base_color="#d7fcd4", hovering_color="White")
         LIBRARY_BUTTON = Button(image=None, pos=(width/2, 4.5 * height/10), 
-            text_input="LIBRARY", font=pygame.font.Font("ui/assets/OpenSans.ttf", 75), 
+            text_input="LIBRARY", font=pygame.font.Font(FONT_PATH, 75), 
             base_color="#d7fcd4", hovering_color="White")
         RECORDINGS_BUTTON = Button(image=None, pos=(width/2, 6 * height/10), 
-            text_input="RECORDINGS", font=pygame.font.Font("ui/assets/OpenSans.ttf", 75), 
+            text_input="RECORDINGS", font=pygame.font.Font(FONT_PATH, 75), 
             base_color="#d7fcd4", hovering_color="White")
         QUIT_BUTTON = Button(image=None, pos=(width/2, 7.5 * height/10), 
-            text_input="QUIT", font=pygame.font.Font("ui/assets/OpenSans.ttf", 75), 
+            text_input="QUIT", font=pygame.font.Font(FONT_PATH, 75), 
             base_color="#d7fcd4", hovering_color="White")
 
-        MENU_TEXT = pygame.font.Font("ui/assets/OpenSans.ttf", 150).render("MAIN MENU", True, "#b68f40")
+        MENU_TEXT = pygame.font.Font(FONT_PATH, 150).render("MAIN MENU", True, "#b68f40")
         MENU_RECT = MENU_TEXT.get_rect(center=(width/2, height/10))
                             
         screen.blit(MENU_TEXT, MENU_RECT)
@@ -79,7 +82,79 @@ def main_menu(SCREEN, state):
         pygame.display.update()
 
 def library(SCREEN, state):
-    return "MAIN_MENU"
+    pygame.display.set_caption("Simulation Library")
+    width, height = SCREEN
+    screen = pygame.display.set_mode((width, height))
+    clock = pygame.time.Clock()
+
+    simulations = list_simulations()
+    selected = None
+
+    BACK_BUTTON = Button(
+        image=None,
+        pos=(width / 2, height * 0.9),
+        text_input="BACK",
+        font=pygame.font.Font(FONT_PATH, 60),
+        base_color="#d7fcd4",
+        hovering_color="White"
+    )
+
+    running = True
+    while running:
+        screen.fill((30, 30, 30))
+        mouse_pos = pygame.mouse.get_pos()
+
+        title = pygame.font.Font(FONT_PATH, 80).render("LIBRARY", True, "#b68f40")
+        screen.blit(title, title.get_rect(center=(width/2, height*0.1)))
+
+        y_offset = height * 0.2
+        buttons = []
+
+        for sim in simulations:
+            btn = Button(
+                image=None,
+                pos=(width/2, y_offset),
+                text_input=sim["name"],
+                font=pygame.font.Font(FONT_PATH, 40),
+                base_color="#AAAAAA",
+                hovering_color="White"
+            )
+            btn.changeColor(mouse_pos)
+            btn.update(screen)
+            buttons.append((btn, sim))
+            y_offset += 60
+
+        BACK_BUTTON.changeColor(mouse_pos)
+        BACK_BUTTON.update(screen)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return {"next": "QUIT"}
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if BACK_BUTTON.checkForInput(mouse_pos):
+                    return {"next": "MAIN_MENU"}
+
+                for btn, sim in buttons:
+                    if btn.checkForInput(mouse_pos):
+                        world = load_simulation_from_json(
+                            f"library/simulations/{sim["filename"]}",
+                            width,
+                            height
+                        )
+                        return {
+                            "next": "SIMULATION",
+                            "world": world
+                        }
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_DELETE and selected:
+                    delete_simulation(selected)
+                    simulations = list_simulations()
+                    selected = None
+
+        pygame.display.update()
+        clock.tick(60)
 
 def recordings(SCREEN, state):
     return "MAIN_MENU"

@@ -1,5 +1,5 @@
 import pygame
-from ui.windows.windows import WINDOWS
+from ui.windows.menu_windows import WINDOWS
 
 def main():
     pygame.init()

@@ -10,7 +10,7 @@ from library.factories import (
 
 from core.world.world import World
 
-def load_simulation_from_json(path_or_config, width, height):
+def load_simulation_from_json(path_or_config, width, height, recording=False):
     if isinstance(path_or_config, str):
         with open(path_or_config, "r") as f:
             config = json.load(f)
@@ -30,7 +30,8 @@ def load_simulation_from_json(path_or_config, width, height):
         width=width,
         height=height,
         constraints=load_constraints(config["world"]["constraints"]),
-        end_condition=load_end_condition(config["world"]["end_condition"])
+        end_condition=load_end_condition(config["world"]["end_condition"]),
+        recording_enabled = recording
     )
 
     for ball_cfg in config.get("balls", []):

@@ -4,12 +4,13 @@ from core.conditions.ball_count import BallCount
 import random
 
 class World:
-    def __init__(self, arena, width, height, constraints, end_condition):
+    def __init__(self, arena, width, height, constraints, end_condition, recording_enabled=False):
         self.arena = arena
         self.width = width
         self.height = height
         self.constraints = constraints
         self.end_condition = end_condition
+        self.recording_enabled = recording_enabled
 
         self.objects = [arena]
         self.running = True

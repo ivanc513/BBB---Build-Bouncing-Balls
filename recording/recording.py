@@ -1,8 +1,5 @@
-# src/screen_recorder.py
-
 import ffmpeg
 import imageio_ffmpeg
-import platform
 
 class ScreenRecorder:
     def __init__(self, output_path, width, height, fps=60):
@@ -10,50 +7,43 @@ class ScreenRecorder:
         self.width = width
         self.height = height
         self.fps = fps
-
         self.ffmpeg_bin = imageio_ffmpeg.get_ffmpeg_exe()
         self.process = None
-        self.system = platform.system()
 
     def start(self):
         if self.process is not None:
             raise RuntimeError("Recording already started")
 
-        if self.system == "Windows":
-            input_kwargs = dict(
-                format="gdigrab",
-                framerate=self.fps,
-                video_size=f"{self.width}x{self.height}",
-                draw_mouse=1
-            )
-            source = "desktop"
-        else:
-            raise RuntimeError("Unsupported OS")
-
         self.process = (
             ffmpeg
-            .input(source, **input_kwargs)
+            .input(
+                "pipe:",
+                format="rawvideo",
+                pix_fmt="rgb24",
+                s=f"{self.width}x{self.height}",
+                framerate=self.fps
+            )
             .output(
                 self.output_path,
                 vcodec="libx264",
-                preset="ultrafast",
-                tune="zerolatency",
                 pix_fmt="yuv420p",
+                preset="ultrafast",
+                vf="vflip",
                 r=self.fps
             )
+            .overwrite_output()
             .run_async(
                 cmd=self.ffmpeg_bin,
-                pipe_stdin=True,
-                pipe_stdout=True,
-                pipe_stderr=True
+                pipe_stdin=True
             )
         )
 
+    def write_frame(self, frame_bytes):
+        if self.process:
+            self.process.stdin.write(frame_bytes)
+
     def stop(self):
-        if self.process is None:
-            return
-
-        self.process.stdin.close()
-        self.process.wait()
-        self.process = None
-
+        if self.process:
+            self.process.stdin.close()
+            self.process.wait()
+            self.process = None

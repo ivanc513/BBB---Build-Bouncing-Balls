@@ -1,8 +1,13 @@
 import pygame
+import os
+from recording.recording import ScreenRecorder
 from OpenGL.GLU import *
 from OpenGL.GL import *
 from ui.widgets.button import Button
 from ui.widgets.dropdown import Dropdown
+from ui.widgets.checkbox import CheckBox
+from library.sim_loader import load_simulation_from_json
+from library.sim_file_handler import *
 
 FONT_PATH = "ui/assets/OpenSans.ttf"
 
@@ -23,6 +28,10 @@ def opengl_display(width, height):
 
 def simulation_window(SCREEN, state):
     WIDTH, HEIGHT = SCREEN
+
+    # Screen recorder required even ints
+    VIDEO_HEIGHT = int(HEIGHT) & ~1
+    VIDEO_WIDTH = int(9 * (HEIGHT / 16)) & ~1
 
     # Initialize OpenGL display
     window = opengl_display(WIDTH, HEIGHT)
@@ -53,6 +62,18 @@ def simulation_window(SCREEN, state):
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
 
+    recorder = None
+    if getattr(world, "recording_enabled", False):
+        os.makedirs("record/saved_videos", exist_ok=True)
+        recorder = ScreenRecorder(
+            output_path="saved_videos/simulation.mp4",
+            width=VIDEO_WIDTH,
+            height=VIDEO_HEIGHT,
+            fps=60
+        )
+    if recorder:
+        recorder.start()
+
     running = True
     while running and world.running:
         dt = clock.tick(60) / 100.0
@@ -73,7 +94,18 @@ def simulation_window(SCREEN, state):
         # Draw world
         world.draw()
 
+        if recorder:
+            pixels = glReadPixels(
+                (WIDTH / 2) - (VIDEO_WIDTH / 2), 0, VIDEO_WIDTH, VIDEO_HEIGHT,
+                GL_RGB,
+                GL_UNSIGNED_BYTE
+            )
+            recorder.write_frame(pixels)
+
         pygame.display.flip()
+
+    if recorder:
+        recorder.stop()
 
     return {"next": "MAIN_MENU"}
 
@@ -104,6 +136,7 @@ def simulation_edit(SCREEN, state):
 
     # Left panel width
     LEFT_PANEL_WIDTH = CENTER_X - VIDEO_WIDTH / 2
+    RIGHT_PANEL_WIDTH = LEFT_PANEL_WIDTH
     PANEL_PADDING = 20
     ROW_HEIGHT = 40
 
@@ -141,6 +174,12 @@ def simulation_edit(SCREEN, state):
         on_select=queue_condition
     )
 
+    record_checkbox = CheckBox(
+        pos=(CENTER_X + VIDEO_WIDTH / 2 + 40, 60),
+        label="Enable Recording (video saved to record/saved_videos)",
+        font=font
+    )
+
     dropdowns = [object_dropdown, constraint_dropdown, condition_dropdown]
 
     while running and not start_simulation:
@@ -150,6 +189,7 @@ def simulation_edit(SCREEN, state):
             if event.type == pygame.QUIT:
                 running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
+                record_checkbox.handle_event(event)
                 if start_button.checkForInput(mouse_pos):
                     start_simulation = True
             # Pass events to dropdowns
@@ -158,6 +198,11 @@ def simulation_edit(SCREEN, state):
 
         # Draw left panel background & border
         panel_rect = pygame.Rect(0, 0, LEFT_PANEL_WIDTH, HEIGHT)
+        pygame.draw.rect(screen, (50, 50, 50), panel_rect)
+        pygame.draw.rect(screen, (200, 200, 200), panel_rect, 3)
+
+        # Draw right panel background & border
+        panel_rect = pygame.Rect(CENTER_X + (VIDEO_WIDTH / 2), 0, RIGHT_PANEL_WIDTH, HEIGHT)
         pygame.draw.rect(screen, (50, 50, 50), panel_rect)
         pygame.draw.rect(screen, (200, 200, 200), panel_rect, 3)
 
@@ -178,10 +223,24 @@ def simulation_edit(SCREEN, state):
         for dd in dropdowns:
             dd.update(screen)
 
-        # Draw start button
+        # Draw buttons
         start_button.changeColor(mouse_pos)
         start_button.update(screen)
+        record_checkbox.update(screen)
 
         pygame.display.flip()
 
-    return {"next": "SIMULATION"}
+    # Save world to JSON file
+
+    #placeholders    
+    template_path = "library/simulation_template/default.json"
+    new_sim_path = create_new_sim_file(template_path)
+
+    # Load from said JSON file
+    world = load_simulation_from_json(new_sim_path, WIDTH, HEIGHT, record_checkbox.checked)
+
+    return {
+        "next": "SIMULATION",
+        "world": world,
+    }
+

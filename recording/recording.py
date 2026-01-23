@@ -1,4 +1,5 @@
 import ffmpeg
+import os
 import imageio_ffmpeg
 
 class ScreenRecorder:
@@ -10,9 +11,26 @@ class ScreenRecorder:
         self.ffmpeg_bin = imageio_ffmpeg.get_ffmpeg_exe()
         self.process = None
 
+    def unique_filename(self, path):
+        if not os.path.exists(path):
+            return path
+
+        directory, filename = os.path.split(path)
+        name, ext = os.path.splitext(filename)
+
+        i = 1
+        while True:
+            new_name = f"{name}({i}){ext}"
+            new_path = os.path.join(directory, new_name)
+            if not os.path.exists(new_path):
+                return new_path
+            i += 1
+
     def start(self):
         if self.process is not None:
             raise RuntimeError("Recording already started")
+        
+        self.output_path = self.unique_filename(self.output_path)
 
         self.process = (
             ffmpeg

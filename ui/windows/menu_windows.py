@@ -2,11 +2,8 @@ import pygame
 from ui.widgets.button import Button
 from library.sim_loader import load_simulation_from_json
 from library.sim_file_handler import *
-from ui.windows.simulation import *
-
-def pygame_display(width, height):
-    return pygame.display.set_mode((width, height), 
-        pygame.RESIZABLE)
+from ui.windows.simulation_window import simulation_window
+from ui.windows.simulation_edit import *
 
 def main_menu(SCREEN, state):
     pygame.display.set_caption("Menu")

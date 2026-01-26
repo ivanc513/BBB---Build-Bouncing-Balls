@@ -63,6 +63,9 @@ class Dropdown(Button):
                 option.changeColor(mouse_pos)
 
         return toggled
+    
+    def change_text(self, new_text):
+        self.font.render(new_text, True, self.base_color)
 
     def total_height(self):
         if not self.expanded:

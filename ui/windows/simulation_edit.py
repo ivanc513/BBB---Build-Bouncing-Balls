@@ -63,10 +63,9 @@ def simulation_edit(SCREEN, state):
 
     # Dropdowns
     ball_dropdown = Dropdown(
-        pos=(0, 0),
+        pos=(30, 0),
         width=LEFT_PANEL_WIDTH - 2 * PANEL_PADDING,
         options=[
-            option("Add Ball"),
             option("Set Radius"),
             option("Set Mass"),
         ],
@@ -78,10 +77,9 @@ def simulation_edit(SCREEN, state):
     )
 
     ring_dropdown = Dropdown(
-        pos=(0, 0),
+        pos=(30, 0),
         width=LEFT_PANEL_WIDTH - 2 * PANEL_PADDING,
         options=[
-            option("Add Ring"),
             option("Set Radius"),
         ],
         font=font_button,
@@ -92,7 +90,7 @@ def simulation_edit(SCREEN, state):
     )
 
     gravity_dropdown = Dropdown(
-        pos=(0, 0),
+        pos=(30, 0),
         width=LEFT_PANEL_WIDTH - 2 * PANEL_PADDING,
         options=[
             option("Enable Gravity"),

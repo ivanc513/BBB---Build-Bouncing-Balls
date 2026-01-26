@@ -64,21 +64,6 @@ Automatically saved to saved_videos folder
 
 ---
 
-## Project Structure
-
-```
-build-bouncing-balls/
-│
-├── main.py              # Entry point and game loop
-├── ball.py              # Ball physics and behavior
-├── recorder.py          # Screen recording logic (FFmpeg)
-├── assets/              # Images or resources (if any)
-├── recordings/          # Generated video files
-└── README.md
-```
-
----
-
 ## License
 
 This project is open-source and free to use for learning and experimentation.

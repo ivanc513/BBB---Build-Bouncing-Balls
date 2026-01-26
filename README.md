@@ -14,7 +14,7 @@ A real-time physics-based simulation built with **Python**, **Pygame** and **PyO
 
 ---
 
-## 📦 Installation
+## Installation
 
 1. **Clone the repository**
 
@@ -64,7 +64,7 @@ Automatically saved to saved_videos folder
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 build-bouncing-balls/

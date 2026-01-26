@@ -33,7 +33,7 @@ A real-time physics-based simulation built with **Python**, **Pygame** and **PyO
 3. **Install dependencies**
 
    ```cmd prompt
-   pip install pygame PyOpenGL imageio-ffmpeg
+   pip install pygame numpy PyOpenGL imageio-ffmpeg
    ```
 
 4. **Ensure FFmpeg is available**

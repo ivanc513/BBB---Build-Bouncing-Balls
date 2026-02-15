@@ -14,7 +14,7 @@ A real-time physics-based simulation built with **Python**, **Pygame** and **PyO
 
 ---
 
-## 📦 Installation
+## Installation
 
 1. **Clone the repository**
 
@@ -33,7 +33,7 @@ A real-time physics-based simulation built with **Python**, **Pygame** and **PyO
 3. **Install dependencies**
 
    ```cmd prompt
-   pip install pygame imageio-ffmpeg
+   pip install pygame numpy PyOpenGL imageio-ffmpeg
    ```
 
 4. **Ensure FFmpeg is available**
@@ -61,21 +61,6 @@ The project supports recording the simulation to a video file using FFmpeg.
 
 Videos are set to match 9:16 resolution found in shorts, reels, and tiktok videos.
 Automatically saved to saved_videos folder
-
----
-
-## 📁 Project Structure
-
-```
-build-bouncing-balls/
-│
-├── main.py              # Entry point and game loop
-├── ball.py              # Ball physics and behavior
-├── recorder.py          # Screen recording logic (FFmpeg)
-├── assets/              # Images or resources (if any)
-├── recordings/          # Generated video files
-└── README.md
-```
 
 ---
 

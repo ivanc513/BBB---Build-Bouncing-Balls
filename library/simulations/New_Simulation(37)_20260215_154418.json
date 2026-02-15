@@ -1,0 +1,55 @@
+{
+    "arena": {
+        "type": "Ring",
+        "center": [
+            "WIDTH/2",
+            "HEIGHT/2"
+        ],
+        "radius": 225.0,
+        "arc_degree": 180.5,
+        "spinning_speed": 0.0505
+    },
+    "world": {
+        "constraints": [
+            {
+                "type": "Gravity",
+                "strength": 5.05
+            }
+        ],
+        "end_condition": {
+            "type": "BallCount",
+            "count": 500.5
+        }
+    },
+    "balls": [
+        {
+            "pos": [
+                "WIDTH/2",
+                "HEIGHT/2 - 120"
+            ],
+            "vel": {
+                "x": [
+                    -4,
+                    4
+                ],
+                "y": [
+                    -1,
+                    1
+                ]
+            },
+            "radius": 5.05,
+            "color": [
+                1.0,
+                0.0,
+                0.0
+            ],
+            "sfx": null,
+            "vfx": null
+        }
+    ],
+    "recording_enabled": false,
+    "metadata": {
+        "name": "New Simulation(37)",
+        "created_at": "2026-02-15 15:44:18"
+    }
+}
